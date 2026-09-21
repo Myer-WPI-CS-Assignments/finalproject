@@ -1,11 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Game from './components/game'
+import Home from './components/index'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <main>
-      <h1>WPI GeoGuessr</h1>
-    </main>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/game' element ={<Game/>} / >
+          <Route path='/' element ={<Home/>} / >
+        </Routes>
+      </BrowserRouter>
   </StrictMode>,
 )

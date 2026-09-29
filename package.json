@@ -23,5 +23,8 @@
   },
   "allowScripts": {
     "fsevents@2.3.3": true
+  },
+  "dependencies": {
+    "react-router-dom": "^7.18.4"
   }
 }

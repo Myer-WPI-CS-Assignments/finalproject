@@ -25,6 +25,7 @@
     "fsevents@2.3.3": true
   },
   "dependencies": {
+    "@types/passport": "^1.0.17",
     "react-router-dom": "^7.18.4"
   }
 }

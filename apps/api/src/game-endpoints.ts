@@ -3,10 +3,12 @@ import express, {
     type NextFunction,
     type Request,
     type Response,
+    type Express,
 } from "express";
 import passport from "passport";
 import fs from "fs";
 import path from "path";
+import type { Pool } from "pg";
 
 const levels = JSON.parse(
     fs.readFileSync(
@@ -17,110 +19,176 @@ const levels = JSON.parse(
         "utf8",
     ),
 );
-const scoreFalloff = 1.05; //adjust how quickly score decreases as you get further from the target
 
-// this isn't part of the database because levels are associated
-// with users for 30 seconds at most
-var levelAssociations = new Map();
+interface GameSession {
+    round: number;
+    totalScore: number;
+    currentLevelIndex: number;
+    history: {
+        levelName: string;
+        distance: number;
+        score: number;
+    }[];
+    completed: boolean;
+}
 
-// pulled from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+const activeGames = new Map<string, GameSession>();
+
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
 }
 
-export function startNewLevel(req: Request, res: Response) {
-    if (!req.user) {
-        //TODO use correct error code
-        res.status(404).send("not logged in");
-        return;
-    }
-    //get levels from levels.json
-    //pick an index randomly
-    //associate that level with the user
-    //send back the level image
-    var index: number = getRandomInt(levels.length);
-    levelAssociations.set(req.user.id, {
-        level: levels[index].name,
-        index: index,
-        time: Date.now(),
-    });
-    sendLevelImage(req, res);
-}
-
-export function sendLevelImage(
-    req: Request,
-    res: Response,
+export function setupGameEndpoints(
+    app: Express,
+    pool: Pool,
 ) {
-    //send the image associated with the current level
-    if (!req.user) {
-        //TODO use correct error code
-        res.status(404).send("not logged in");
-        return;
-    }
-
-    if (!levelAssociations.has(req.user.id)) {
-        //TODO use correct error code
-        res.status(404).send("no game started");
-        return;
-    }
-
-    var path: string = levelAssociations
-        .get(req.user.id)
-        .level.concat(".webp");
-    res.sendFile(path, { root: "../../levels" });
-}
-
-export function checkGuess(req: Request, res: Response) {
-    // body should contain xPosition and yPosition
-
-    //get the level currently associated with the user
-    //get the guess from the request body
-    //get the correct location <somehow>
-    //score the guess based on its distance from the correct location
-    //send back the score
-    // <possibly update the user's persistant score or something ?>
-    if (!req.user) {
-        res.status(401).send("not logged in");
-        return;
-    }
-
-    if (!levelAssociations.has(req.user.id)) {
-        res.status(404).send("no game started");
-        return;
-    }
-
-    const levelIndex = levelAssociations.get(
-        req.user.id,
-    ).index;
-    const trueX = levels[levelIndex].mapX;
-    const trueY = levels[levelIndex].mapY;
-    const guessX = req.body.xPosition;
-    const guessY = req.body.yPosition;
-
-    const distance = Math.sqrt(
-        (guessX - trueX) ** 2 + (guessY - trueY) ** 2,
+    app.get(
+        "/api/game/state",
+        (req: Request, res: Response) => {
+            if (!req.user)
+                return res
+                    .status(401)
+                    .send("not logged in");
+            const game = activeGames.get(req.user.id);
+            if (!game) return res.json({ active: false });
+            res.json({ active: true, ...game });
+        },
     );
 
-    // Calculate the raw penalty to see exactly how massive it gets
-    const penalty = scoreFalloff ** distance - 1;
-    const maxScore = 5000;
-    const perfectRadius = 25;
-    const falloffScale = 300;
-    let score = 0;
+    app.post(
+        "/api/game/start",
+        (req: Request, res: Response) => {
+            if (!req.user)
+                return res
+                    .status(401)
+                    .send("not logged in");
+            const newGame: GameSession = {
+                round: 1,
+                totalScore: 0,
+                currentLevelIndex: getRandomInt(
+                    levels.length,
+                ),
+                history: [],
+                completed: false,
+            };
+            activeGames.set(req.user.id, newGame);
+            res.json({ active: true, ...newGame });
+        },
+    );
 
-    if (distance <= perfectRadius) {
-        score = maxScore;
-    } else {
-        const penaltyDistance = distance - perfectRadius;
-        score =
-            maxScore *
-            Math.exp(-penaltyDistance / falloffScale);
-    }
+    app.get(
+        "/api/game/image",
+        (req: Request, res: Response) => {
+            if (!req.user)
+                return res
+                    .status(401)
+                    .send("not logged in");
+            const game = activeGames.get(req.user.id);
+            if (!game || game.completed)
+                return res
+                    .status(404)
+                    .send("no game active");
+            const pathStr =
+                levels[game.currentLevelIndex].name.concat(
+                    ".webp",
+                );
+            res.sendFile(pathStr, { root: "../../levels" });
+        },
+    );
 
-    // Clamp the score so it never drops below 0
-    const finalScore = Math.max(0, score);
+    app.post(
+        "/api/game/guess",
+        async (req: Request, res: Response) => {
+            if (!req.user)
+                return res
+                    .status(401)
+                    .send("not logged in");
+            const game = activeGames.get(req.user.id);
+            if (!game || game.completed)
+                return res
+                    .status(404)
+                    .send("no game active");
 
-    res.send({ score: finalScore });
+            const level = levels[game.currentLevelIndex];
+            const guessX = req.body.xPosition;
+            const guessY = req.body.yPosition;
 
-    levelAssociations.delete(req.user.id);
+            const distance = Math.sqrt(
+                (guessX - level.mapX) ** 2 +
+                    (guessY - level.mapY) ** 2,
+            );
+
+            let score = 0;
+            if (distance <= 25) {
+                score = 5000;
+            } else {
+                score =
+                    5000 * Math.exp(-(distance - 25) / 320);
+            }
+            score = Math.max(0, Math.round(score));
+
+            game.history.push({
+                levelName: level.name,
+                distance,
+                score,
+            });
+            game.totalScore += score;
+
+            if (game.round >= 5) {
+                game.completed = true;
+                await pool.query(
+                    "INSERT INTO games (account_id, score) VALUES ($1, $2)",
+                    [req.user.id, game.totalScore],
+                );
+                res.json({
+                    completed: true,
+                    history: game.history,
+                    totalScore: game.totalScore,
+                    roundScore: score,
+                });
+                activeGames.delete(req.user.id);
+            } else {
+                game.round += 1;
+                game.currentLevelIndex = getRandomInt(
+                    levels.length,
+                );
+                res.json({
+                    completed: false,
+                    totalScore: game.totalScore,
+                    roundScore: score,
+                });
+            }
+        },
+    );
+
+    app.get(
+        "/api/leaderboard",
+        async (_req: Request, res: Response) => {
+            try {
+                const result = await pool.query(`
+                SELECT accounts.username, MAX(games.score) as best_score
+                FROM games
+                JOIN accounts ON games.account_id = accounts.id
+                GROUP BY accounts.username
+                ORDER BY best_score DESC
+                LIMIT 10
+            `);
+                res.json(result.rows);
+            } catch (err) {
+                console.error("Leaderboard error:", err);
+                res.status(500).send("Database error");
+            }
+        },
+    );
+    app.post(
+        "/api/game/quit",
+        (req: Request, res: Response) => {
+            if (!req.user)
+                return res
+                    .status(401)
+                    .send("not logged in");
+            activeGames.delete(req.user.id);
+            res.json({ success: true });
+        },
+    );
 }

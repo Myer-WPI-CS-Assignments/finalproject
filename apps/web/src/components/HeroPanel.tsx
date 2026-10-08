@@ -1,11 +1,25 @@
 import LoginCard from "./LoginCard";
-import WPIScene from "web/public/WPIScene.png";
+import WPIScene from "/WPIScene.png";
 import Box from "@mui/material/Box";
 import CycloneOutlinedIcon from "@mui/icons-material/CycloneOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { Divider, Stack, Typography } from "@mui/material";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+    // I'm adding some auto-routing so we don't log in if we are already logged in.
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetch("/api/me")
+            .then((res) => {
+                if (res.ok) {
+                    navigate("/lobby");
+                }
+            })
+            .catch(console.error);
+    }, [navigate]);
+
     return (
         <Box
             sx={{

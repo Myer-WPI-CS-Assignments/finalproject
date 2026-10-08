@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 import { createApp } from "./app.ts";
 import { config } from "dotenv";
-import * as game from "./game-endpoints.ts";
+import { setupGameEndpoints } from "./game-endpoints.ts";
 config();
 
 //const game = require("./game-enpoints")
@@ -28,9 +28,7 @@ app.get("/api/health", (_request, response) => {
     response.json({ status: "ok" });
 });
 
-app.get("/api/level/image", game.sendLevelImage);
-app.post("/api/level/new", game.startNewLevel);
-app.post("/api/level/guess", game.checkGuess);
+setupGameEndpoints(app, pool);
 
 app.listen(port, () => {
     console.log(

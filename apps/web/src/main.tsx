@@ -9,6 +9,7 @@ import {
 import Game from "./components/game";
 import Home from "./components/index";
 import LobbyPage from "./pages/LobbyPage";
+import Leaderboard from "./components/Leaderboard";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -16,6 +17,10 @@ createRoot(document.getElementById("root")!).render(
             <Routes>
                 <Route path="/game" element={<Game />} />
                 <Route path="/" element={<Home />} />
+                <Route
+                    path="/leaderboard"
+                    element={<Leaderboard />}
+                />
                 <Route
                     path="/lobby"
                     element={<LobbyPage />}

@@ -1,3 +1,12 @@
 [
-    {"name":"noparking", "mapX":690, "mapY":350.0 }
+    {"name":"noparking", "mapX":690, "mapY":350.0 },
+    {"name":"level1", "mapX":690, "mapY":350.0 },
+    {"name":"level2", "mapX":690, "mapY":350.0 },
+    {"name":"level3", "mapX":690, "mapY":350.0 },
+    {"name":"level4", "mapX":690, "mapY":350.0 },
+    {"name":"level5", "mapX":690, "mapY":350.0 },
+    {"name":"level6", "mapX":690, "mapY":350.0 },
+    {"name":"level7", "mapX":690, "mapY":350.0 },
+    {"name":"level8", "mapX":690, "mapY":350.0 },
+    {"name":"level9", "mapX":690, "mapY":350.0 }
 ]

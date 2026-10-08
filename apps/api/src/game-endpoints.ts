@@ -1,8 +1,9 @@
 import express, { type ErrorRequestHandler, type NextFunction, type Request, type Response } from 'express'
 import passport from 'passport';
+import fs from "fs";
+import path from 'path';
 
-const fs = require("fs");
-const levels = JSON.parse(fs.readFileSync('./levels.json', 'utf8'));
+const levels = JSON.parse(fs.readFileSync(new URL('../../../levels/levels.json', import.meta.url), 'utf8'));
 const scoreFalloff = 1.05; //adjust how quickly score decreases as you get further from the target
 
 // this isn't part of the database because levels are associated
@@ -14,7 +15,7 @@ function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
 }
 
-exports.startNewLevel = function(req: Request, res: Response){
+export function startNewLevel(req: Request, res: Response){
     if(!req.user) {
         //TODO use correct error code
         res.status(404).send('not logged in');
@@ -29,7 +30,7 @@ exports.startNewLevel = function(req: Request, res: Response){
     exports.sendLevelImage(req, res);
 }
 
-exports.sendLevelImage = function(req: Request, res: Response){
+export function sendLevelImage(req: Request, res: Response){
     //send the image associated with the current level
     if(!req.user) {
         //TODO use correct error code
@@ -47,7 +48,7 @@ exports.sendLevelImage = function(req: Request, res: Response){
     res.sendFile(path);
 }
 
-exports.checkGuess = function(req: Request, res: Response){
+export function checkGuess(req: Request, res: Response){
     // body should contain xPosition and yPosition
     
     //get the level currently associated with the user

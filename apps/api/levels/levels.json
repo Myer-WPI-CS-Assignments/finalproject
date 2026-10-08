@@ -1,7 +1,7 @@
 [
     {"name":"noparking", "mapX":690, "mapY":350.0 },
     {"name":"level1", "mapX":2640, "mapY":953.0 },
-    {"name":"level2", "mapX":520, "mapY":2800.0 },
+    {"name":"level2", "mapX":2800.0, "mapY":520 },
     {"name":"level3", "mapX":2600, "mapY":1023.0 },
     {"name":"level4", "mapX":2550, "mapY":1216 },
     {"name":"level5", "mapX":1786, "mapY":1447.0 },

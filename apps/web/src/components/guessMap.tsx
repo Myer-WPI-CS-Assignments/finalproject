@@ -27,6 +27,10 @@ interface ClickHandlerProps {
     onClick: (pos: [number, number]) => void;
 }
 
+interface GuessMapProps {
+    onSubmit: (pos: [number, number]) => void;
+}
+
 const ClickHandler: React.FC<ClickHandlerProps> = ({
     onClick,
 }) => {
@@ -58,7 +62,9 @@ const MapResizer = ({
     return null;
 };
 
-export default function GuessMap() {
+export default function GuessMap({
+    onSubmit,
+}: GuessMapProps) {
     const [position, setPosition] = useState<
         [number, number] | null
     >(null);
@@ -147,13 +153,14 @@ export default function GuessMap() {
                 >
                     <Button
                         variant="contained"
-                        onClick={() =>
-                            // This is where we would make as post request to the server to get our score, next map info etc.
+                        onClick={() => {
+                            if (position)
+                                onSubmit(position);
                             console.log(
                                 "Submitted:",
                                 position,
-                            )
-                        }
+                            );
+                        }}
                         disabled={!position}
                         sx={{
                             "&.Mui-disabled": {

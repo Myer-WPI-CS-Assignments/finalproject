@@ -63,7 +63,7 @@ export default function Game() {
 
     const handleNextLevel = () => {
         if (level >= 5) {
-            navigate("/"); // Or route to a game-over summary page
+            navigate("/lobby"); 
         } else {
             setLevel((prev) => prev + 1);
             setScore(null);
@@ -73,7 +73,7 @@ export default function Game() {
         }
     };
 
-    if (isAuthenticated === null) return null; // Loading state
+    if (isAuthenticated === null) return null;
     if (isAuthenticated === false)
         return <div>Please log in to play.</div>;
 

@@ -5,10 +5,11 @@ import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
 
 export default function PlayCard(){
-
+  const navigate = useNavigate();
   return(
       <Box
           sx={{
@@ -64,7 +65,7 @@ export default function PlayCard(){
 
           {/*play button*/}
           <Box sx={{display: 'flex', flexDirection: 'column', gap: "13px"}}>
-            <Button fullWidth variant="contained" sx={{borderRadius: "14px", backgroundColor: "#FF4D4D", px: "24px", height: "68px", textTransform: "none", justifyContent: "space-between"}}>
+            <Button onClick={() => navigate("/game")} fullWidth variant="contained" sx={{borderRadius: "14px", backgroundColor: "#FF4D4D", px: "24px", height: "68px", textTransform: "none", justifyContent: "space-between"}}>
               <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
                 <PlayArrowOutlinedIcon sx={{fontFamily: "Inter", fontSize: "34px", fontWeight: 800, color: "white"}}/>
                 <Typography sx={{fontFamily: "Inter", fontSize: "22px", fontWeight: 800, color: "white"}}>

@@ -22,7 +22,7 @@ app.get('/health', (_request, response) => {
 
 app.get('/level/image', game.sendLevelImage);
 app.post('/level/new', game.startNewLevel);
-app.post('/leve/guess', game.checkGuess);
+app.post('/level/guess', game.checkGuess);
 
 app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`)

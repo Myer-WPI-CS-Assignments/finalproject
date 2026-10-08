@@ -26,8 +26,8 @@ export function startNewLevel(req: Request, res: Response){
     //associate that level with the user
     //send back the level image
     var index: number = getRandomInt(levels.length);
-    levelAssociations.set(req.user.id, {level: levels[index].name, time: Date.now()});
-    exports.sendLevelImage(req, res);
+    levelAssociations.set(req.user.id, {level: levels[index].name, index: index, time: Date.now()});
+    sendLevelImage(req, res);
 }
 
 export function sendLevelImage(req: Request, res: Response){
@@ -38,14 +38,14 @@ export function sendLevelImage(req: Request, res: Response){
         return;
     }
 
-    if(!levelAssociations.has(req.user)) {
+    if(!levelAssociations.has(req.user.id)) {
         //TODO use correct error code
         res.status(404).send('no game started');
         return;
     }
 
-    var path: string = "../../levels/".concat(levelAssociations.get(req.user.id).name).concat(".webp");
-    res.sendFile(path);
+    var path: string = levelAssociations.get(req.user.id).level.concat(".webp");
+    res.sendFile(path, {root: "../../levels"});
 }
 
 export function checkGuess(req: Request, res: Response){
@@ -63,19 +63,20 @@ export function checkGuess(req: Request, res: Response){
         return;
     }
 
-    if(!levelAssociations.has(req.user)) {
+    if(!levelAssociations.has(req.user.id)) {
         //TODO use correct error code
         res.status(404).send('no game started');
         return;
     }
 
-    const trueX = levelAssociations.get(req.user.id).mapX;
-    const trueY = levelAssociations.get(req.user.id).mapY;
+    const levelIndex = levelAssociations.get(req.user.id).index;
+    const trueX = levels[levelIndex].mapX;
+    const trueY = levels[levelIndex].mapY;
     const guessX = req.body.xPosition;
     const guessY = req.body.yPosition;
     
     var distance = Math.sqrt( (guessX - trueX)**2 + (guessY - trueY)**2 )
-    var score = 100 - (scoreFalloff**distance - 1);
+    var score = (100 - (scoreFalloff**distance - 1));
 
     res.send({"score" : score});
     // unassociate level from user

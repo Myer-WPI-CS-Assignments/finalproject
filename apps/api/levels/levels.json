@@ -1,12 +1,12 @@
 [
     {"name":"noparking", "mapX":690, "mapY":350.0 },
-    {"name":"level1", "mapX":690, "mapY":350.0 },
-    {"name":"level2", "mapX":690, "mapY":350.0 },
-    {"name":"level3", "mapX":690, "mapY":350.0 },
-    {"name":"level4", "mapX":690, "mapY":350.0 },
+    {"name":"level1", "mapX":2640, "mapY":953.0 },
+    {"name":"level2", "mapX":520, "mapY":2800.0 },
+    {"name":"level3", "mapX":2600, "mapY":1023.0 },
+    {"name":"level4", "mapX":2550, "mapY":1216 },
     {"name":"level5", "mapX":690, "mapY":350.0 },
-    {"name":"level6", "mapX":690, "mapY":350.0 },
-    {"name":"level7", "mapX":690, "mapY":350.0 },
-    {"name":"level8", "mapX":690, "mapY":350.0 },
-    {"name":"level9", "mapX":690, "mapY":350.0 }
+    {"name":"level6", "mapX":1544, "mapY":1390.0 },
+    {"name":"level7", "mapX":1081, "mapY":586.0 },
+    {"name":"level8", "mapX":1425, "mapY":600.0 },
+    {"name":"level9", "mapX":1400, "mapY":480.0 }
 ]

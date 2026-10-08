@@ -9,13 +9,14 @@ import passport from "passport";
 import fs from "fs";
 import path from "path";
 import type { Pool } from "pg";
+import { fileURLToPath } from "url";
 
+const levelsDir = fileURLToPath(
+    new URL("../levels", import.meta.url),
+);
 const levels = JSON.parse(
     fs.readFileSync(
-        new URL(
-            "../../../levels/levels.json",
-            import.meta.url,
-        ),
+        new URL("../levels/levels.json", import.meta.url),
         "utf8",
     ),
 );
@@ -92,7 +93,7 @@ export function setupGameEndpoints(
                 levels[game.currentLevelIndex].name.concat(
                     ".webp",
                 );
-            res.sendFile(pathStr, { root: "../../levels" });
+            res.sendFile(pathStr, { root: levelsDir });
         },
     );
 

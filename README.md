@@ -33,9 +33,9 @@ The web app runs at `http://localhost:5173`. The API runs at `http://localhost:3
 
 ## Team Roles
 - **Myer Cheng**: User account backend and API
-- **Dexter Haehnichen**: Game Backend
+- **Dexter Haehnichen**: Game Backend, taking pictures and mapping pictures to coordinates.
 - **Thomas Gilbert**: Login and Lobby Front-end UI
-- **David Peterson**: Game Frontend, API integration
+- **David Peterson**: Game Frontend, API integration, taking pictures. 
 
 ## Project Video
 [Watch our Demo Video](https://www.youtube.com/watch?v=KJuAP0hsRr0)
